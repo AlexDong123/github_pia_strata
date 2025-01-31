@@ -25,15 +25,14 @@ from chains import (
 
 # >>>> initialise - environemnt <<<< 
 
-load_dotenv(".env")
 
-url = os.getenv("NEO4J_URI")
-username = os.getenv("NEO4J_USERNAME")
-password = os.getenv("NEO4J_PASSWORD")
-database = os.getenv("NEO4J_DATABASE")
-ollama_base_url = os.getenv("OLLAMA_BASE_URL")
-embedding_model_name = os.getenv("EMBEDDING_MODEL")
-llm_name = os.getenv("LLM")
+url = os.environ.get("NEO4J_URI")
+username = os.environ.get("NEO4J_USERNAME")
+password = os.environ.get("NEO4J_PASSWORD")
+database = os.environ.get("NEO4J_DATABASE")
+#ollama_base_url = os.getenv("OLLAMA_BASE_URL")
+embedding_model_name = os.environ.get("EMBEDDING_MODEL")
+llm_name = os.environ.get("LLM")
 # Remapping for Langchain Neo4j integration
 # os.environ["NEO4J_URL"] = url
 
