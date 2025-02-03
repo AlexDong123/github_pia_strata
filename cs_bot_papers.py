@@ -25,14 +25,36 @@ from chains import (
 
 # >>>> initialise - environemnt <<<< 
 
+load_dotenv(".env")
 
-url = os.environ.get("NEO4J_URI")
-username = os.environ.get("NEO4J_USERNAME")
-password = os.environ.get("NEO4J_PASSWORD")
-database = os.environ.get("NEO4J_DATABASE")
-#ollama_base_url = os.getenv("OLLAMA_BASE_URL")
-embedding_model_name = os.environ.get("EMBEDDING_MODEL")
-llm_name = os.environ.get("LLM")
+
+# Neo4j
+
+neo4j_method = os.getenv("NEO4J_METHOD") # get the Neo4j connection method. local or aura
+print("Neo4J connect method: ", neo4j_method)
+print(neo4j_method == "aura")
+
+if "url" not in st.session_state:
+    st.session_state["url"]=""
+    if neo4j_method == "local":
+        st.session_state["url"] = os.getenv("NEO4J_LOCAL_URI")
+        st.session_state["username"] = os.getenv("NEO4J_LOCAL_USERNAME")
+        st.session_state["password"] = os.getenv("NEO4J_LOCAL_PASSWORD")
+        st.session_state["database"] = os.getenv("NEO4J_LOCAL_DATABASE")
+    else:
+        st.session_state["url"] = os.getenv("NEO4J_AURA_URI")
+        st.session_state["username"] = os.getenv("NEO4J_AURA_USERNAME")
+        st.session_state["password"] = os.getenv("NEO4J_AURA_PASSWORD")
+        st.session_state["database"] = os.getenv("NEO4J_AURA_DATABASE")
+print("url: ", st.session_state["url"])
+url = st.session_state["url"]
+username = st.session_state["username"]
+password = st.session_state["password"]
+database = st.session_state["database"]
+
+embedding_model_name = os.getenv("EMBEDDING_MODEL")
+print("Here embedding model: ", embedding_model_name)
+llm_name = os.getenv("LLM")
 # Remapping for Langchain Neo4j integration
 # os.environ["NEO4J_URL"] = url
 
@@ -44,10 +66,10 @@ logger = get_logger(__name__)
 neo4j_graph = Neo4jGraph(url=url, username=username, password=password, database=database)
 
 embeddings, dimension = load_embedding_model(
-    embedding_model_name, config={"ollama_base_url": ollama_base_url}, logger=logger
+    embedding_model_name, logger=logger
 )
 
-llm = load_llm(llm_name, logger=logger, config={"ollama_base_url": ollama_base_url})
+llm = load_llm(llm_name, logger=logger)
 # >>>>>>initialise address and by law name <<<<
 if "address" not in st.session_state:
         st.session_state[f"address"] = []

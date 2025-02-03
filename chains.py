@@ -1,6 +1,10 @@
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.embeddings import OllamaEmbeddings, SentenceTransformerEmbeddings
 from langchain.chat_models import ChatOpenAI, ChatOllama
+
+from langchain_aws import ChatBedrockConverse, ChatBedrock
+from langchain_community.embeddings import BedrockEmbeddings
+
 from langchain_community.vectorstores.neo4j_vector import Neo4jVector
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
@@ -12,46 +16,59 @@ from langchain.prompts.chat import (
 from typing import List, Any
 from utils import BaseLogger
 from langchain.chains import GraphCypherQAChain 
+import os
+from dotenv import load_dotenv
 
-def load_embedding_model(embedding_model_name: str, logger=BaseLogger(), config={}):
+def load_embedding_model(embedding_model_name: str, logger=BaseLogger()):
     if embedding_model_name == "ollama":
         embeddings = OllamaEmbeddings(
-            base_url=config["ollama_base_url"], model="nomic-embed-text:latest"
+            base_url= os.getenv("OLLAMA_BASE_URL"), model="nomic-embed-text:latest"
         )
         dimension = 4096
-        logger.info("Embedding: Using Ollama")
+    elif embedding_model_name == "bedrock":
+        BedrockEmbeddings(
+            model_id = 'amazon.titan-embed-text-v1',
+            region_name="us-east-1"
+        )
     elif embedding_model_name == "openai":
         embeddings = OpenAIEmbeddings()
         dimension = 1536
-        logger.info("Embedding: Using OpenAI")
     else:
         embeddings = SentenceTransformerEmbeddings(
             model_name="all-MiniLM-L6-v2", cache_folder="/embedding_model"
         )
         dimension = 384
-        logger.info("Embedding: Using SentenceTransformer")
+    print("Embedding use: ", embedding_model_name)
     return embeddings, dimension
 
 
-def load_llm(llm_name: str, logger=BaseLogger(), config={}):
+def load_llm(llm_name: str, logger=BaseLogger()):
+    print("LLM: Using", llm_name)
     if llm_name == "gpt-4":
-        logger.info("LLM: Using GPT-4")
         return ChatOpenAI(temperature=0, model_name="gpt-4", streaming=True)
     elif llm_name == "gpt-3.5":
-        logger.info("LLM: Using GPT-3.5")
         return ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", streaming=True)
-    elif len(llm_name):
-        logger.info(f"LLM: Using Ollama: {llm_name}")
+    elif llm_name == "bedrock":
+        return ChatBedrock(
+            model_id = os.getenv("BEDROCK_MODEL_ID"),
+            temperature=os.getenv("LLM_TEMPERATURE"),
+            provider=os.getenv("BEDROCK_MODEL_PROVIDER"),
+            region_name=os.getenv("BEDROCK_REGION_NAME"),
+            max_tokens=os.getenv("BEDROCK_MAX_TOEKNS"),
+            streaming=True,
+            # other params...
+            )
+    elif llm_name == "ollama":
         return ChatOllama(
             temperature=0,
-            base_url=config["ollama_base_url"],
-            model=llm_name,
+            base_url=os.getenv("OLLAMA_BASE_URL"),
+            model=os.getenv("OLLAMA_MODEL_NAME"),
             streaming=True,
             top_k=10,  # A higher value (100) will give more diverse answers, while a lower value (10) will be more conservative.
             top_p=0.3,  # Higher value (0.95) will lead to more diverse text, while a lower value (0.5) will generate more focused text.
             num_ctx=3072,  # Sets the size of the context window used to generate the next token.
         )
-    logger.info("LLM: Using GPT-3.5")
+    print("Finally call gpt-3.5")
     return ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", streaming=True)
 
 
