@@ -17,6 +17,8 @@ from typing import List, Any
 from utils import BaseLogger
 from langchain.chains import GraphCypherQAChain 
 import os
+from dotenv import load_dotenv
+import boto3
 
 def load_embedding_model(embedding_model_name: str, logger=BaseLogger()):
     if embedding_model_name == "ollama":
@@ -25,10 +27,17 @@ def load_embedding_model(embedding_model_name: str, logger=BaseLogger()):
         )
         dimension = 4096
     elif embedding_model_name == "bedrock":
-        BedrockEmbeddings(
-            model_id = 'amazon.titan-embed-text-v1',
-            region_name="us-east-1"
+        bedrock_client = boto3.client(
+            service_name="bedrock-runtime",
+            region_name="us-east-1",
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
         )
+        embeddings = BedrockEmbeddings(
+            client= bedrock_client,
+            model_id = 'amazon.titan-embed-text-v2:0'
+        )
+        dimension = 1024
     elif embedding_model_name == "openai":
         embeddings = OpenAIEmbeddings()
         dimension = 1536
@@ -54,8 +63,8 @@ def load_llm(llm_name: str, logger=BaseLogger()):
             provider=os.environ.get("BEDROCK_MODEL_PROVIDER"),
             region_name=os.environ.get("BEDROCK_REGION_NAME"),
             max_tokens=os.environ.get("BEDROCK_MAX_TOEKNS"),
-            aws_access_key_id=os.environ.get("BEDROCK_AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.environ.get("BEDROCK_AWS_SECRET_ACCESS_KEY"),
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
             streaming=True,
             # other params...
             )
