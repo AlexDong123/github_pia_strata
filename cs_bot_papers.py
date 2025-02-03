@@ -29,7 +29,7 @@ from chains import (
 
 # Neo4j
 
-neo4j_method = os.environ.get("") # get the Neo4j connection method. local or aura
+neo4j_method = os.environ.get("NEO4J_METHOD") # get the Neo4j connection method. local or aura
 print("Neo4J connect method: ", neo4j_method)
 print(neo4j_method == "aura")
 
