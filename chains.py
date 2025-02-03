@@ -17,12 +17,11 @@ from typing import List, Any
 from utils import BaseLogger
 from langchain.chains import GraphCypherQAChain 
 import os
-from dotenv import load_dotenv
 
 def load_embedding_model(embedding_model_name: str, logger=BaseLogger()):
     if embedding_model_name == "ollama":
         embeddings = OllamaEmbeddings(
-            base_url= os.getenv("OLLAMA_BASE_URL"), model="nomic-embed-text:latest"
+            base_url= os.environ.get("OLLAMA_BASE_URL"), model="nomic-embed-text:latest"
         )
         dimension = 4096
     elif embedding_model_name == "bedrock":
@@ -50,19 +49,21 @@ def load_llm(llm_name: str, logger=BaseLogger()):
         return ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", streaming=True)
     elif llm_name == "bedrock":
         return ChatBedrock(
-            model_id = os.getenv("BEDROCK_MODEL_ID"),
-            temperature=os.getenv("LLM_TEMPERATURE"),
-            provider=os.getenv("BEDROCK_MODEL_PROVIDER"),
-            region_name=os.getenv("BEDROCK_REGION_NAME"),
-            max_tokens=os.getenv("BEDROCK_MAX_TOEKNS"),
+            model_id = os.environ.get("BEDROCK_MODEL_ID"),
+            temperature=os.environ.get("LLM_TEMPERATURE"),
+            provider=os.environ.get("BEDROCK_MODEL_PROVIDER"),
+            region_name=os.environ.get("BEDROCK_REGION_NAME"),
+            max_tokens=os.environ.get("BEDROCK_MAX_TOEKNS"),
+            aws_access_key_id=os.environ.get("BEDROCK_AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("BEDROCK_AWS_SECRET_ACCESS_KEY"),
             streaming=True,
             # other params...
             )
     elif llm_name == "ollama":
         return ChatOllama(
             temperature=0,
-            base_url=os.getenv("OLLAMA_BASE_URL"),
-            model=os.getenv("OLLAMA_MODEL_NAME"),
+            base_url=os.environ.get("OLLAMA_BASE_URL"),
+            model=os.environ.get("OLLAMA_MODEL_NAME"),
             streaming=True,
             top_k=10,  # A higher value (100) will give more diverse answers, while a lower value (10) will be more conservative.
             top_p=0.3,  # Higher value (0.95) will lead to more diverse text, while a lower value (0.5) will generate more focused text.

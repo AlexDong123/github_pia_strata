@@ -25,36 +25,35 @@ from chains import (
 
 # >>>> initialise - environemnt <<<< 
 
-load_dotenv(".env")
 
 
 # Neo4j
 
-neo4j_method = os.getenv("NEO4J_METHOD") # get the Neo4j connection method. local or aura
+neo4j_method = os.environ.get("") # get the Neo4j connection method. local or aura
 print("Neo4J connect method: ", neo4j_method)
 print(neo4j_method == "aura")
 
 if "url" not in st.session_state:
     st.session_state["url"]=""
     if neo4j_method == "local":
-        st.session_state["url"] = os.getenv("NEO4J_LOCAL_URI")
-        st.session_state["username"] = os.getenv("NEO4J_LOCAL_USERNAME")
-        st.session_state["password"] = os.getenv("NEO4J_LOCAL_PASSWORD")
-        st.session_state["database"] = os.getenv("NEO4J_LOCAL_DATABASE")
+        st.session_state["url"] = os.environ.get("NEO4J_LOCAL_URI")
+        st.session_state["username"] = os.environ.get("NEO4J_LOCAL_USERNAME")
+        st.session_state["password"] = os.environ.get("NEO4J_LOCAL_PASSWORD")
+        st.session_state["database"] = os.environ.get("NEO4J_LOCAL_DATABASE")
     else:
-        st.session_state["url"] = os.getenv("NEO4J_AURA_URI")
-        st.session_state["username"] = os.getenv("NEO4J_AURA_USERNAME")
-        st.session_state["password"] = os.getenv("NEO4J_AURA_PASSWORD")
-        st.session_state["database"] = os.getenv("NEO4J_AURA_DATABASE")
+        st.session_state["url"] = os.environ.get("NEO4J_AURA_URI")
+        st.session_state["username"] = os.environ.get("NEO4J_AURA_USERNAME")
+        st.session_state["password"] = os.environ.get("NEO4J_AURA_PASSWORD")
+        st.session_state["database"] = os.environ.get("NEO4J_AURA_DATABASE")
 print("url: ", st.session_state["url"])
 url = st.session_state["url"]
 username = st.session_state["username"]
 password = st.session_state["password"]
 database = st.session_state["database"]
 
-embedding_model_name = os.getenv("EMBEDDING_MODEL")
+embedding_model_name = os.environ.get("EMBEDDING_MODEL")
 print("Here embedding model: ", embedding_model_name)
-llm_name = os.getenv("LLM")
+llm_name = os.environ.get("LLM")
 # Remapping for Langchain Neo4j integration
 # os.environ["NEO4J_URL"] = url
 
