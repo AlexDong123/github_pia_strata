@@ -126,7 +126,7 @@ col1, col2 = st.columns([2,10], vertical_alignment="bottom")
 with col1:
     st.image("images/qna-logo.png", width=100) 
 with col2:
-    st.title("PIA Strata Chatbot")
+    st.title("Strata Chatbot")
 # >>>> UI interations <<<<
 # Function to retrieve the bylaw file based on the address input
 def get_property_bylaw(address, address_map):
